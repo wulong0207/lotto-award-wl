@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hhly.award.persistence.dao.SportDrawBBDaoMapper" >
+  <resultMap id="BaseResultMap" type="com.hhly.award.bo.SportDrawBBBO" >
+      <id column="ID" property="id" />
+      <result column="SPORT_AGAINST_INFO_ID" property="sportAgainstInfoId" />
+      <result column="FIRST_SCORE" property="firstScore" />
+      <result column="SECOND_SCORE" property="secondScore" />
+      <result column="THIRD_SCORE" property="thirdScore" />
+      <result column="FOURTH_SCORE" property="fourthScore" />
+      <result column="OUT_TIME_SCORE" property="outTimeScore" />
+      <result column="FULL_SCORE" property="fullScore" />
+      <result column="FULL_WF" property="fullWf" />
+      <result column="LET_WF" property="letWf" />
+      <result column="SIZE_SCORE" property="sizeScore" />
+      <result column="WIN_SCORE" property="winScore" />
+      <result column="DRAW_TIME" property="drawTime" />
+      <result column="MODIFY_BY" property="modifyBy" />
+      <result column="MODIFY_TIME" property="modifyTime" />
+      <result column="UPDATE_TIME" property="updateTime" />
+      <result column="CREATE_TIME" property="createTime" />
+  </resultMap>
+
+  <sql id="Base_Column_List" >
+    ID, SPORT_AGAINST_INFO_ID, FIRST_SCORE, SECOND_SCORE, THIRD_SCORE,
+    FOURTH_SCORE,OUT_TIME_SCORE, FULL_SCORE, FULL_WF, LET_WF, SIZE_SCORE, WIN_SCORE, DRAW_TIME, MODIFY_BY,
+    MODIFY_TIME, UPDATE_TIME, CREATE_TIME
+  </sql>
+  <select id="findBySportAgainstInfoIdS" resultMap="BaseResultMap">
+  	/*MASTER*/
+	SELECT
+	<include refid="Base_Column_List" />
+	FROM SPORT_DRAW_BB WHERE SPORT_AGAINST_INFO_ID IN
+	<foreach collection="sportAgainstInfoIdS" index="index"
+		item="sportAgainstInfoId" open="(" separator="," close=")">
+		#{sportAgainstInfoId}
+	</foreach>
+  </select>
+  
+  <select id="findBySystemCode" resultMap="BaseResultMap">
+  	/*MASTER*/
+  	SELECT 
+  	a.ID, a.SPORT_AGAINST_INFO_ID, a.FIRST_SCORE, a.SECOND_SCORE, a.THIRD_SCORE,
+    a.FOURTH_SCORE,a.OUT_TIME_SCORE, a.FULL_SCORE, a.FULL_WF, a.LET_WF, a.SIZE_SCORE, a.WIN_SCORE, a.DRAW_TIME, a.MODIFY_BY,
+    a.MODIFY_TIME, a.UPDATE_TIME, a.CREATE_TIME
+  	FROM SPORT_DRAW_BB a INNER JOIN SPORT_AGAINST_INFO b ON a.SPORT_AGAINST_INFO_ID = b.ID WHERE b.SYSTEM_CODE = #{systemCode}
+  </select>
+</mapper>

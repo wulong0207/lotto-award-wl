@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hhly.award.persistence.dao.IssueContentInfoMapper" >
+	<resultMap type="com.hhly.award.bo.IssueContentInfoBO" id="resultMap">
+		<id column="id" property="id" />
+		<result column="issue_content_original_id" property="issueContentOriginalId" />
+		<result column="issue_code" property="issueCode" />
+		<result column="plan_content" property="planContent" />
+		<result column="order_status" property="orderStatus" />
+		<result column="lottery_code" property="lotteryCode" />
+		<result column="lottery_child_code" property="lotteryChildCode" />
+		<result column="amount" property="amount" />
+		<result column="create_time" property="createTime" />
+		<result column="buy_screen" property="buyScreen" />
+	</resultMap>
+
+	<select id="getIssueContentInfos" resultMap="resultMap">
+		select id,issue_content_original_id,
+		issue_code,plan_content,order_status,
+		lottery_code,lottery_child_code,
+		amount,create_time,buy_screen 
+		from issue_content_info 
+		where lottery_code = #{lotteryCode} 
+		<if test="orderStatus!=null">
+			and order_status = #{orderStatus}
+		</if>
+		<if test = "lotteryChild!=null">
+			and lottery_child_code = #{lotteryChild}
+		</if>
+		<if test="cancelSystemCode!=null">
+			and buy_screen CONCAT(CONCAT('%', #{cancelSystemCode}), '%')
+		</if>
+	</select>
+	
+	<update id="updateIssueContentInfoBO">
+		update issue_content_info set order_status = #{orderStatus} 
+		<if test="amount!=null">
+			amount = #{amount}
+		</if>
+		where id = #{id}
+	</update>
+</mapper>

@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  <!--日志级别以及优先级排序: OFF > FATAL > ERROR > WARN > INFO > DEBUG > TRACE > ALL -->
+  <!--Configuration后面的status，这个用于设置log4j2自身内部的信息输出，可以不设置，当设置成trace时，你会看到log4j2内部各种详细输出-->
+  <!--monitorInterval：Log4j能够自动检测修改配置 文件和重新配置本身，设置间隔秒数-->
+  <configuration status="info" monitorInterval="30">
+       <properties>
+        <!--日志启用级别-->
+        <property name="LOG_LEVEL">INFO</property>
+        <!--日志存放目录-->
+        <property name="LOG_PATH">${sys:user.home}/logs/lotto-ticket/${date:yyyy-MM}/</property> 
+        <!--新生成的日志名称-->
+        <property name="LOG_NAME_DEBUG">debug_%d{yyyy-MM-dd}_%i.log.gz</property>
+        <property name="LOG_NAME_INFO">info_%d{yyyy-MM-dd}_%i.log.gz</property>
+        <property name="LOG_NAME_WARN">warn_%d{yyyy-MM-dd}_%i.log.gz</property>
+        <property name="LOG_NAME_ERROR">error_%d{yyyy-MM-dd}_%i.log.gz</property>
+        <!--日志格式-->
+        <property name="LOG_PATTERN">%d %level [%thread] [%file:%line] - %msg%n</property>
+        <!--日志滚动生成大小：满多少生成新的日志文件-->
+        <property name="LOG_SIZE">512MB</property>
+        <!--用来指定同一个文件夹下最多有几个日志文件时开始删除最旧的文件-->
+        <property name="LOG_MAX">50</property>
+    </properties>
+      <!--先定义所有的appender-->
+    <appenders>
+     <!--这个输出控制台的配置-->
+         <console name="Console" target="SYSTEM_OUT">
+         <!--输出日志的格式-->
+             <PatternLayout pattern="${LOG_PATTERN}"/>
+         </console>
+
+         <!-- 这个会打印出所有的debug及以下级别的信息，每天生成一次，每次大小超过size，则这size大小的日志会自动存入按年份-月份建立的文件夹下面并进行压缩，作为存档-->
+         <RollingFile name="RollingFileDebug" fileName="${LOG_PATH}/debug.log" filePattern="${LOG_PATH}/${LOG_NAME_DEBUG}">
+             <!--控制台只输出level及以上级别的信息（onMatch），其他的直接拒绝（onMismatch）-->        
+             <ThresholdFilter level="debug" onMatch="ACCEPT" onMismatch="DENY"/>
+             <PatternLayout pattern="${LOG_PATTERN}"/>
+             <Policies>
+                 <TimeBasedTriggeringPolicy/>  
+                 <SizeBasedTriggeringPolicy size="${LOG_SIZE}"/>
+             </Policies>
+               <!-- DefaultRolloverStrategy属性如不设置，则默认为最多同一文件夹下7个文件，这里设置了20 -->
+              <DefaultRolloverStrategy max="${LOG_MAX}"/>
+         </RollingFile>
+         
+         <RollingFile name="RollingFileInfo" fileName="${LOG_PATH}/info.log" filePattern="${LOG_PATH}/${LOG_NAME_INFO}">
+             <!--控制台只输出level及以上级别的信息（onMatch），其他的直接拒绝（onMismatch）-->        
+             <ThresholdFilter level="info" onMatch="ACCEPT" onMismatch="DENY"/>
+             <PatternLayout pattern="${LOG_PATTERN}"/>
+             <Policies>
+                 <TimeBasedTriggeringPolicy/>  
+                 <SizeBasedTriggeringPolicy size="${LOG_SIZE}"/>
+             </Policies>
+               <!-- DefaultRolloverStrategy属性如不设置，则默认为最多同一文件夹下7个文件，这里设置了20 -->
+              <DefaultRolloverStrategy max="${LOG_MAX}"/>
+         </RollingFile>
+         
+         <RollingFile name="RollingFileWarn" fileName="${LOG_PATH}/warn.log" filePattern="${LOG_PATH}/${LOG_NAME_WARN}">
+             <!--控制台只输出level及以上级别的信息（onMatch），其他的直接拒绝（onMismatch）-->        
+             <ThresholdFilter level="warn" onMatch="ACCEPT" onMismatch="DENY"/>
+             <PatternLayout pattern="${LOG_PATTERN}"/>
+             <Policies>
+                 <TimeBasedTriggeringPolicy/>
+                 <SizeBasedTriggeringPolicy size="${LOG_SIZE}"/>
+             </Policies>
+               <!-- DefaultRolloverStrategy属性如不设置，则默认为最多同一文件夹下7个文件，这里设置了20 -->
+              <DefaultRolloverStrategy max="${LOG_MAX}"/>
+         </RollingFile>
+         
+         <RollingFile name="RollingFileError" fileName="${LOG_PATH}/error.log" filePattern="${LOG_PATH}/${LOG_NAME_ERROR}">
+             <!--控制台只输出level及以上级别的信息（onMatch），其他的直接拒绝（onMismatch）-->        
+             <ThresholdFilter level="error" onMatch="ACCEPT" onMismatch="DENY"/>
+             <PatternLayout pattern="${LOG_PATTERN}"/>
+             <Policies>
+                 <TimeBasedTriggeringPolicy/>  
+                 <SizeBasedTriggeringPolicy size="${LOG_SIZE}"/>
+             </Policies>
+               <!-- DefaultRolloverStrategy属性如不设置，则默认为最多同一文件夹下7个文件，这里设置了20 -->
+              <DefaultRolloverStrategy max="${LOG_MAX}"/>
+         </RollingFile>
+     </appenders>
+     
+     <!--然后定义logger，只有定义了logger并引入的appender，appender才会生效-->
+     <loggers>
+         <root level="${LOG_LEVEL}">
+             <appender-ref ref="Console"/>
+             <appender-ref ref="RollingFileDebug"/>
+             <appender-ref ref="RollingFileInfo"/>
+             <appender-ref ref="RollingFileWarn"/>
+             <appender-ref ref="RollingFileError"/> 
+         </root>
+         <logger name="org.mybatis" level="${LOG_LEVEL}" additivity="false">
+             <appender-ref ref="Console"/>
+         </logger>
+         <logger name="java.sql" level="${LOG_LEVEL}" additivity="false">
+             <appender-ref ref="Console"/>
+         </logger>
+         <logger name="java.sql.Connection" level="${LOG_LEVEL}" additivity="false">
+             <appender-ref ref="Console"/>
+         </logger>
+         <logger name="java.sql.Statement" level="${LOG_LEVEL}" additivity="false">
+             <appender-ref ref="Console"/>
+         </logger>
+         <logger name="java.sql.PreparedStatement" level="${LOG_LEVEL}" additivity="false">
+             <appender-ref ref="Console"/>
+         </logger>
+         <logger name="java.sql.ResultSet" level="${LOG_LEVEL}" additivity="false">
+             <appender-ref ref="Console"/>
+         </logger>
+         <logger name="com.hhly.lottoticket.persistence.dao" level="${LOG_LEVEL}" additivity="false">
+             <appender-ref ref="Console"/>
+         </logger>
+     </loggers>
+ </configuration>

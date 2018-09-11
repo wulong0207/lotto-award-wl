@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hhly.award.persistence.dao.SportDrawBJDaoMapper" >
+  <resultMap id="BaseResultMap" type="com.hhly.award.bo.SportDrawBJBO" >
+    <id column="ID" property="id" />
+    <result column="SPORT_AGAINST_INFO_ID" property="sportAgainstInfoId" />
+    <result column="HALF_SCORE" property="halfScore" />
+    <result column="FULL_SCORE" property="fullScore" />
+    <result column="LET_NUM" property="letNum" />
+    <result column="LET_WDF" property="letWdf" />
+    <result column="GOAL_NUM" property="goalNum" />
+    <result column="HF_WDF" property="hfWdf" />
+    <result column="UD_SD" property="udSd" />
+    <result column="SCORE" property="score" />
+    <result column="SP_LET_WDF" property="spLetWdf" />
+    <result column="SP_GOAL_NUM" property="spGoalNum" />
+    <result column="SP_HF_WDF" property="spHfWdf" />
+    <result column="SP_UD_SD" property="spUdSd" />
+    <result column="SP_SCORE" property="spScore" />
+    <result column="DRAW_TIME" property="drawTime" />
+    <result column="MODIFY_BY" property="modifyBy" />
+    <result column="MODIFY_TIME" property="modifyTime" />
+    <result column="UPDATE_TIME" property="updateTime" />
+    <result column="CREATE_TIME" property="createTime" />
+  </resultMap>
+
+  
+
+
+  <sql id="Base_Column_List" >
+    ID, SPORT_AGAINST_INFO_ID, HALF_SCORE, FULL_SCORE, LET_NUM, LET_WDF, GOAL_NUM,
+    HF_WDF, UD_SD, SCORE, SP_LET_WDF, SP_GOAL_NUM, SP_HF_WDF, SP_UD_SD, SP_SCORE, DRAW_TIME, 
+    MODIFY_BY, MODIFY_TIME, UPDATE_TIME, CREATE_TIME
+  </sql>
+
+  <select id="findBySportAgainstInfoIdS" resultMap="BaseResultMap">
+  	/*MASTER*/
+	SELECT
+	<include refid="Base_Column_List" />
+	FROM SPORT_DRAW_BJ WHERE SPORT_AGAINST_INFO_ID IN
+	<foreach collection="sportAgainstInfoIdS" index="index"
+		item="sportAgainstInfoId" open="(" separator="," close=")">
+		#{sportAgainstInfoId}
+	</foreach>
+</select>
+
+</mapper>

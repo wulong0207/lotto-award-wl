@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hhly.award.persistence.dao.TicketInfoDaoMapper" >
+   <update id="updateTicketRestart">
+	  UPDATE TICKET_INFO
+	  SET
+	   MODIFY_BY = 'system',
+  	   MODIFY_TIME = now() ,
+	   WINNING_STATUS =1 ,
+	   PRE_BONUS= 0,
+	   AFT_BONUS =0,
+	   WINNING_DETAIL ='',
+	   ADDED_BONUS =0,
+	   LOTTERY_TIME = NULL,
+	   TICKET_REMARK = '开奖数据重置'
+	   where 
+	     ORDER_CODE in (
+	          <foreach collection="orders" item="item" separator=",">
+	              #{item}
+	          </foreach>
+	        )
+	</update>
+	
+	<update id="updateTicketInfo">
+	   <foreach collection="tickets" item="item">
+	       UPDATE TICKET_INFO 
+	       SET  WINNING_STATUS = #{item.winningStatus}
+	           ,PRE_BONUS = #{item.preBonus}
+	           ,LOTTERY_TIME = now()
+	           ,ADDED_BONUS = #{item.addedBonus}
+	           ,AFT_BONUS = #{item.aftBonus}
+	           ,WINNING_DETAIL = #{item.winningDetail,jdbcType=VARCHAR}
+	           ,MODIFY_BY = 'system'
+  	   		   ,MODIFY_TIME = now() 
+	       WHERE ID = #{item.id};
+	   </foreach>
+	</update>
+	<select id="countTicketNotDraw" resultType="int">
+		/*MASTER*/
+		SELECT
+			count(*)
+		FROM
+			ticket_info
+		WHERE
+			lottery_code = #{lotteryCode}
+		AND lottery_issue = #{lotteryIssue}
+		AND winning_status = 1
+		AND order_code != ''
+	</select>
+</mapper>

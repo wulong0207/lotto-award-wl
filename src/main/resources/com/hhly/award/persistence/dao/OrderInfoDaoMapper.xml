@@ -1,0 +1,525 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hhly.award.persistence.dao.OrderInfoDaoMapper" >
+
+	<resultMap type="com.hhly.award.bo.OrderInfoBO" id="orderInfoBOMap">
+			<id column="id" property="id"/>
+			<result column="orderCode" property="orderCode"/>
+			<result column="lotteryCode" property="lotteryCode"/>
+			<result column="lotteryName" property="lotteryName"/>
+			<result column="lotteryIssue" property="lotteryIssue"/>
+			<result column="userId" property="userId"/>
+			<result column="orderAmount" property="orderAmount"/>
+			<result column="orderPreBonus" property="preBonus"/>
+			<result column="buyType" property="buyType"/>
+			<result column="payStatus" property="payStatus"/>
+			<result column="orderStatus" property="orderStatus"/>
+			<result column="winningStatus" property="winningStatus"/>
+			<result column="channelId" property="channelId"/>
+			<result column="buyScreen" property="buyScreen"/>
+			<result column="maxBuyScreen" property="maxBuyScreen"/>
+			<result column="winningDetail" property="winningDetail"/>
+			<result column="orderAddCode" property="orderAddCode"/>
+			<result column="orderType" property="orderType"/>
+			<result column="redCodeGet" property="redCodeGet"/>
+			
+			<collection property="ticketInfoBOs" ofType="com.hhly.award.bo.TicketInfoBO" resultMap="ticketInfoBOMap" />
+	</resultMap>
+	
+	<resultMap type="com.hhly.award.bo.OrderDetailBO" id="orderDetailBOMap">
+		<id column="od_id" property="id" />
+		<result column="plan_content" property="planContent" />
+		<result column="multiple" property="multiple" />
+		<result column="amount" property="amount" />
+		<result column="play_intro" property="playIntro" />
+		<result column="code_way" property="codeWay" />
+		<result column="content_type" property="contentType" />
+		<result column="betting_content_url" property="bettingContentUrl" />
+		<result column="buy_screen" property="buyScreen" />
+		<result column="lottery_child_code" property="lotteryChildCode" />
+		<result column="buy_number" property="buyNumber" />
+		<result column="pre_bonus" property="preBonus" />
+		<result column="aft_bonus" property="aftBonus" />
+		<result column="winning_detail" property="winningDetail" />
+		
+	</resultMap>
+	
+	<resultMap type="com.hhly.award.bo.TicketInfoBO" id="ticketInfoBOMap">
+		<id column="ticket_id" property="id"/>
+		<result column="ticket_ticketStatus" property="ticketStatus" />
+		<result column="ticket_money" property="ticketMoney" />
+		<result column="ticket_channelId" property="channelId" />
+		<result column="ticket_winningStatus" property="winningStatus" />
+		<result column="ticket_preBonus" property="preBonus"/>
+		<result column="ticket_contentType" property="contentType" />
+		<result column="ticket_buyScreen" property="buyScreen" />
+		<result column="ticket_lottoAdd" property="lottoAdd" />
+		<result column="ticket_multipleNum" property="multipleNum" />
+		<result column="ticket_ticketContent" property="ticketContent" />
+		<result column="ticket_lotteryChildCode" property="lotteryChildCode" />
+		<result column="ticket_receiptContent" property="receiptContent" />
+		<result column="order_detail_id" property="orderDetailId" />
+		<result column="lottery_code" property="lotteryCode" />
+	</resultMap>
+  
+	<select id="findOrderDetail" resultType="com.hhly.award.bo.OrderDetailBO">
+		/*MASTER*/
+	    select od.id,
+	       od.plan_content plancontent,
+	       od.multiple multiple,
+	       od.amount amount,
+	       od.play_intro playintro,
+	       od.code_way codeway,
+	       od.content_type contenttype,
+	       od.BETTING_CONTENT_URL BETTINGCONTENTURL,
+	       od.BUY_SCREEN buyScreen,
+	       od.LOTTERY_CHILD_CODE lotteryChildCode,
+	       od.BUY_NUMBER buyNumber,
+	       od.order_type orderType,
+	       od.pre_bonus preBonus,
+	       od.aft_bonus aftBonus,
+	       od.winning_detail winningDetail,
+        from ORDER_DETAIL od
+	    where od.order_code = #{orderCode}
+	</select>
+  	
+  	<select id="getContainSystemCode" resultType="java.lang.String">
+  		/*MASTER*/
+  		SELECT ORDER_CODE FROM ORDER_INFO WHERE WINNING_STATUS IN (2,3,4) AND lottery_code = #{lotteryCode}
+  		<if test="lotteryChildCode!=null">
+  			AND lottery_child_code = #{lotteryChildCode}
+  		</if>
+  		<if test="systemCode!=null">
+  		 	AND find_in_set(#{systemCode},BUY_SCREEN)
+  		</if>
+  		order by buy_time asc
+  	</select>
+  	<update id="updateOrderRestart">
+	    UPDATE ORDER_INFO oi
+		LEFT JOIN order_detail od ON (
+			oi.order_code = od.order_code
+		)
+		SET oi.WINNING_STATUS = 1,
+		 oi.PRE_BONUS = 0,
+		 oi.AFT_BONUS = 0,
+		 oi.ADDED_BONUS = 0,
+		 oi.WINNING_DETAIL = '',
+		 oi.DRAW_CODE = '',
+		 oi.REMARK = '开奖数据重置',
+		 oi.UPDATE_TIME = now(),
+		 od.pre_bonus = 0
+	     where oi.ORDER_CODE in (
+	          <foreach collection="orders" item="item" separator=",">
+	              #{item}
+	          </foreach>
+	        )
+	</update>
+	<select id="getOrderInfoS" resultMap="orderInfoBOMap">
+		/*MASTER*/
+		select o.id id, 
+		o.order_code orderCode,
+		o.lottery_code lotteryCode,
+		o.lottery_issue lotteryIssue,
+		o.user_id userId,
+		o.order_amount orderAmount,
+		o.pre_bonus orderPreBonus,
+		o.buy_type buyType,
+		o.pay_status payStatus,
+		o.order_status orderStatus,
+		o.winning_status winningStatus, 
+		o.channel_id channelId,
+		o.buy_screen buyScreen,
+		o.MAX_BUY_SCREEN maxBuyScreen,
+		o.winning_detail winningDetail,
+		o.order_add_code orderAddCode,
+		o.order_type orderType,
+		d.id ticket_id,
+		d.lottery_code lottery_code,
+		d.ticket_money ticket_money,
+		d.ticket_status ticket_ticketStatus,
+		d.channel_id ticket_channelId,
+		d.winning_status ticket_winningStatus,
+		d.pre_bonus ticket_preBonus,
+		d.content_type ticket_contentType,
+		d.buy_screen ticket_buyScreen,
+		d.lotto_add ticket_lottoAdd,
+		d.multiple_num ticket_multipleNum,
+		d.ticket_content ticket_ticketContent,
+		d.lottery_child_code ticket_lotteryChildCode,
+		d.receipt_content ticket_receiptContent,
+		d.order_detail_id order_detail_id,
+		o.red_code_get redCodeGet
+		from ORDER_INFO o 
+		inner join TICKET_INFO d on o.order_code = d.order_code 
+		where o.order_code in
+		<foreach collection="orderCodes" index="index" item="orderCode"
+			open="(" separator="," close=")">
+			#{orderCode}
+		</foreach> 
+	</select>
+	
+	<select id="getOrderInfosByMaxBuyScreen" resultType="java.lang.String">
+		/*MASTER*/
+		SELECT
+		o.order_code
+		FROM
+		ORDER_INFO o
+		WHERE o.winning_status = 1 AND
+		o.max_buy_screen in (
+		select system_code from (
+			SELECT
+			system_code
+			FROM
+			SPORT_AGAINST_INFO
+			WHERE
+			lottery_code = #{lotteryCode} AND match_status in (17,14,15) AND system_code IS NOT NULL ORDER BY id desc Limit 200
+			) t
+		)
+		and o.lottery_code = #{lotteryCode}
+		order by o.buy_time asc
+	</select>
+
+	<!-- 获取冠亚军竞猜对阵数据 -->
+	<select id="getOrderInfosByGyJc" resultType="java.lang.String">
+		/*MASTER*/
+		SELECT
+		o.order_code
+		FROM
+		ORDER_INFO o
+		WHERE o.winning_status = 1
+              AND o.pay_status != 3
+		AND o.max_buy_screen in (
+		select system_code from (
+		SELECT
+		system_code
+		FROM
+		SPORT_AGAINST_INFO
+		WHERE
+		lottery_code = #{lotteryCode} AND issue_code=#{issueCode} AND match_status in (17,18) AND system_code IS NOT
+		NULL ORDER BY id desc
+		) t
+		)
+		and o.lottery_code = #{lotteryCode} AND o.lottery_issue=#{issueCode}
+		order by o.buy_time asc
+	</select>
+
+
+	<select id="updateSportAgnistInfoByMatchStatus">
+		UPDATE SPORT_AGAINST_INFO set match_status = 15 WHERE lottery_code = #{lotteryCode} AND match_status= 17 AND system_code IS NOT NULL
+	</select>
+	
+	
+	<select id="getOrderInfosWinByMaxBuyScreen" resultType="java.lang.String">
+		/*MASTER*/
+		SELECT
+			o.order_code
+		FROM
+			ORDER_INFO o
+		LEFT JOIN SPORT_AGAINST_INFO sai ON (sai.system_code = o.max_buy_screen  and sai.lottery_code = #{lotteryCode})
+		WHERE
+			o.lottery_code = #{lotteryCode}
+		<if test="issues != null">
+			and o.lottery_issue in (
+			    <foreach collection="issues" separator="," item="item">
+			      #{item}
+			    </foreach>
+			)
+		</if>
+		AND o.winning_status = 3
+		AND o.pay_status = 2
+		AND o.order_status = 6
+		AND sai.match_status IN (14, 15, 16,18)
+	</select>	
+   <select id="getLotteryIssue" resultType="com.hhly.award.bo.LotteryIssueBO">
+   	  /*MASTER*/
+	  select 
+	  	DRAW_CODE  DRAWCODE,
+	  	draw_Detail drawDetail
+	  from LOTTERY_ISSUE
+	  where 
+	    issue_code = #{lotteryIssue}
+	    and lottery_code = #{lotteryCode}
+	    <if test="status != null">
+	     	and SALE_STATUS = #{status}
+	    </if>
+	</select>
+	<update id="updateOrderInfo" parameterType = "com.hhly.award.bo.OrderInfoBO">
+		UPDATE ORDER_INFO 
+		SET LOTTERY_TIME = now()
+			,UPDATE_TIME = now()
+			,WINNING_DETAIL = #{winningDetail,jdbcType=VARCHAR}
+			,WEBSITE_BONUS = #{websiteBonus}
+			,RED_CODE_GET = #{redCodeGet}
+			,PRE_BONUS = #{preBonus}
+			,AFT_BONUS = #{aftBonus}
+			,ADDED_BONUS = #{addedBonus}
+			,WINNING_STATUS = #{winningStatus}
+			,DRAW_CODE = #{drawCode,jdbcType=VARCHAR}
+			WHERE ID = #{id}
+	</update>
+	<update id="updateLotteryIssueStatus">
+		UPDATE LOTTERY_ISSUE
+		set SALE_STATUS = #{status},
+			UPDATE_TIME = now()
+		where LOTTERY_CODE = #{lotteryCode}
+		and ISSUE_CODE = #{lotteryIssue}
+	</update>
+	<select id="getDrawOrderCodes" resultType="java.lang.String">
+	  select 
+	     order_code 
+	  from ORDER_INFO
+	  where lottery_code = #{lotteryCode}
+	   and lottery_issue = #{lotteryIssue}
+	   and winning_status in (
+		   <foreach collection="status" separator="," item="item">
+		       #{item}
+		   </foreach>
+	   )
+	</select>
+	
+	<select id="getWinOrderCodes" resultType="java.lang.String">
+	 /*MASTER*/
+	  select 
+	     order_code 
+	  from ORDER_INFO
+	  where lottery_code = #{lotteryCode}
+	   and lottery_issue = #{lotteryIssue}
+		AND winning_status = 3
+		AND pay_status = 2
+		AND order_status = 6	   
+	</select>
+	<select id="listCanPayout" resultType="String"> 
+	/*MASTER*/
+	  select 
+	     order_code 
+	  from ORDER_INFO
+	  where  winning_status = 3
+		AND pay_status = 2
+		AND order_status = 6
+		AND order_code in (
+		  <foreach collection="orders" separator="," item="item">
+		      #{item}
+		  </foreach>
+		) 
+	</select>
+	<select id="listOrderInfo" resultType="com.hhly.award.bo.OrderInfoBO">
+	   select 
+	     order_code ordercode,
+	     lottery_code lotterycode,
+	     lottery_issue lotteryissue 
+	  from ORDER_INFO
+	  where order_code in (
+	   <foreach collection="orders" separator="," item="item">
+	      #{item}
+	   </foreach>
+	  )
+	</select>
+	
+	<select id="getOrderInfoBuyTime" resultType="java.util.Date">
+		/*MASTER*/
+		select o.buy_time id
+		from ORDER_INFO o 
+		where o.order_code in
+		<foreach collection="orderCodes" index="index" item="orderCode"
+			open="(" separator="," close=")">
+			#{orderCode}
+		</foreach> 
+		order by buy_time asc
+	</select>
+	
+	<update id="updateOrderMaxBuyScreen">
+		UPDATE ORDER_INFO SET MAX_BUY_SCREEN = #{maxBuyScreen} WHERE ORDER_CODE = #{orderCode}
+	</update>
+	<update id="updateOrderWinStatus">
+		UPDATE ORDER_INFO SET 
+  		UPDATE_TIME = now(),
+  		WINNING_STATUS = 4,
+  		send_time = now()
+  		WHERE ORDER_CODE in (
+  		 <foreach collection="orderCodes" separator="," item="item">
+	      #{item}
+	   </foreach>
+	   )
+	</update>
+	<select id="getPayoutAwardOrderCount" resultType="int">
+		select count(1) from order_info 
+		where lottery_code = #{lotteryCode}
+		<if test="lotteryIssue!=null and lotteryIssue!=''">
+			and lottery_issue = #{lotteryIssue}
+		</if>
+	    and WINNING_STATUS = 3
+	    and order_status = 6
+	    AND pay_status = 2
+	</select>
+	<select id="getPayoutMatchId" resultType="Integer">
+	    SELECT
+			id
+		FROM
+			SPORT_AGAINST_INFO
+		WHERE
+			lottery_code = #{lotteryCode}
+		AND match_status in (15,14)
+		AND system_code IS NOT NULL
+		AND system_code NOT IN (
+			SELECT
+				o.max_buy_screen
+			FROM
+				ORDER_INFO o
+			WHERE
+				o.max_buy_screen IN (
+					SELECT
+						system_code
+					FROM
+						SPORT_AGAINST_INFO
+					WHERE
+						lottery_code = #{lotteryCode}
+					AND match_status in (15,14) 
+					AND system_code IS NOT NULL
+				)
+			AND o.winning_status = 3
+			AND o.pay_status = 2
+			AND o.order_status = 6
+			AND o.lottery_code = #{lotteryCode}
+		)
+	</select>
+
+
+	<update id="updateSportAgnistInfoPayout">
+	    UPDATE SPORT_AGAINST_INFO
+		SET match_status = 16
+		WHERE
+			id IN (
+			<foreach collection="ids" separator="," item="item">
+			   	#{item}
+			</foreach>
+		)
+		and match_status != 14
+	</update>
+	<select id="getLotteryType" resultType="com.hhly.award.persistence.po.LotteryTypePO">
+	    SELECT
+			auto_type autotype
+		FROM
+			lottery_type
+		WHERE
+			lottery_code = #{lotteryCode}
+	</select>
+	
+	<select id="getOrderWinStatus" resultType="String">
+	  /*MASTER*/
+	  select 
+	     order_code 
+	  from ORDER_INFO
+	  where  order_code in (
+	   <foreach collection="order" separator="," item="item">
+	      #{item}
+	   </foreach>
+	  )
+	  and winning_status in (
+	   <foreach collection="status" separator="," item="item">
+	      #{item}
+	   </foreach>
+	  )
+	  order by buy_time asc
+	</select>
+	
+	<select id="getByOrderType" resultType="String">
+	  /*MASTER*/
+	  select 
+	     order_code 
+	  from ORDER_INFO
+	  where  order_code in (
+	   <foreach collection="orders" separator="," item="item">
+	      #{item}
+	   </foreach>
+	  )
+	  and order_type in (
+	   <foreach collection="orderTypes" separator="," item="item">
+	      #{item}
+	   </foreach>
+	  )
+	  order by buy_time asc
+	</select>
+	
+	<select id="getFollowOrderInfo" resultType="String">
+	  /*MASTER*/
+		SELECT
+			f.order_code
+		FROM
+			order_followed_info f
+		LEFT JOIN order_issue_info i ON i.id = f.order_issue_id
+		WHERE
+		i.order_code = #{orderCode}		
+	</select>
+	
+	
+	<update id="updateOrderAddedIssue" parameterType="com.hhly.award.bo.OrderInfoBO">
+		UPDATE order_added_issue
+		SET pre_bonus = #{preBonus},
+		 aft_bonus = #{aftBonus},
+		 update_time = now()
+		WHERE
+			order_add_code = #{orderAddCode}
+		AND issue_code = #{lotteryIssue}
+		AND order_code = #{orderCode}	   
+	</update>
+	<update id="updateOrderAddMoney" parameterType="String">
+		UPDATE order_added oa
+		JOIN (
+			SELECT
+				sum(oi.pre_bonus) pre_bonus,
+				sum(oi.aft_bonus) aft_bonus,
+				o.order_add_code
+			FROM
+				order_added_issue o
+			LEFT JOIN order_info oi ON oi.order_code = o.order_code
+			WHERE
+				o.order_add_code =  #{orderAddCode}
+			AND o.add_status = 1
+			AND oi.order_status = 6
+		) oai ON oai.order_add_code = oa.order_add_code
+		SET oa.pre_bonus = oai.pre_bonus,
+		 oa.aft_bonus = oai.aft_bonus	   
+	</update>
+	
+	<update id="resetOrderDetail">
+	
+		update order_detail set pre_bonus = null,aft_bonus=null,winning_detail=null where id in (
+		<foreach collection="ids" separator="," item="item">
+	      #{item}
+	   </foreach>
+	   )
+	</update>
+	
+	<update id="updateCopyOrderWinStatus">
+		UPDATE ORDER_INFO
+		SET UPDATE_TIME = NOW(),
+		WINNING_STATUS = 4,
+		SEND_TIME = NOW()
+		WHERE
+		ORDER_CODE IN (
+			SELECT
+			A.ORDER_CODE
+			FROM
+			ORDER_FOLLOWED_INFO A
+			JOIN ORDER_ISSUE_INFO B ON A.ORDER_ISSUE_ID = B.ID
+			WHERE
+			B.ORDER_CODE = #{orderCode}
+		) AND PAY_STATUS = 2 AND ORDER_STATUS = 6 AND WINNING_STATUS = 3
+	</update>
+	
+	<update id="updateOrderInfoBonus">
+		UPDATE ORDER_INFO 
+		SET 
+			UPDATE_TIME = now()
+			<if test="officialBonus!=null">
+				,added_bonus = #{officialBonus}
+			</if>
+			<if test="localBonus!=null">
+				,website_bonus = #{localBonus}
+			</if>
+			<if test="redCode!=null">
+				,red_code_get = #{redCode}
+			</if>
+			WHERE ID = #{id}
+	</update>
+</mapper>

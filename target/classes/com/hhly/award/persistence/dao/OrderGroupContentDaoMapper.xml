@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hhly.award.persistence.dao.OrderGroupContentDaoMapper">
+    <resultMap id="BaseResultMap" type="com.hhly.award.persistence.po.OrderGroupContentPO">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="order_code" jdbcType="VARCHAR" property="orderCode"/>
+        <result column="user_id" jdbcType="INTEGER" property="userId"/>
+        <result column="buy_ratio" jdbcType="DECIMAL" property="buyRatio"/>
+        <result column="buy_amount" jdbcType="DECIMAL" property="buyAmount"/>
+        <result column="buy_time" jdbcType="TIMESTAMP" property="buyTime"/>
+        <result column="pre_bonus" jdbcType="DECIMAL" property="preBonus"/>
+        <result column="aft_bonus" jdbcType="DECIMAL" property="aftBonus"/>
+        <result column="commission_amount" jdbcType="DECIMAL" property="commissionAmount"/>
+        <result column="send_bonus" jdbcType="DECIMAL" property="sendBonus"/>
+        <result column="added_bonus" jdbcType="DECIMAL" property="addedBonus"/>
+        <result column="site_added_bonus" jdbcType="DECIMAL" property="siteAddedBonus"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="remark" jdbcType="VARCHAR" property="remark"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, order_code, user_id, buy_ratio, buy_amount, buy_time, pre_bonus, aft_bonus, commission_amount,
+        send_bonus,added_bonus,site_added_bonus, create_time, update_time, remark
+    </sql>
+
+    <select id="selectByOrderCode" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from order_group_content
+        where order_code = #{orderCode,jdbcType=VARCHAR}
+        order by create_time desc
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        DELETE FROM order_group_content
+        WHERE id = #{id,jdbcType=INTEGER}
+    </delete>
+
+    <insert id="insert" parameterType="com.hhly.award.persistence.po.OrderGroupContentPO">
+        INSERT INTO order_group_content (id, order_code, user_id,
+                                         buy_ratio, buy_amount, buy_time,
+                                         pre_bonus, aft_bonus, commission_amount,
+                                         send_bonus, create_time, update_time,
+                                         remark)
+        VALUES (#{id,jdbcType=INTEGER}, #{orderCode,jdbcType=VARCHAR}, #{userId,jdbcType=INTEGER},
+                                        #{buyRatio,jdbcType=DECIMAL}, #{buyAmount,jdbcType=DECIMAL},
+                                        #{buyTime,jdbcType=TIMESTAMP},
+                                        #{preBonus,jdbcType=DECIMAL}, #{aftBonus,jdbcType=DECIMAL},
+                                        #{commissionAmount,jdbcType=DECIMAL},
+                                        #{sendBonus,jdbcType=DECIMAL}, #{createTime,jdbcType=TIMESTAMP},
+                #{updateTime,jdbcType=TIMESTAMP},
+                #{remark,jdbcType=VARCHAR})
+    </insert>
+    <insert id="insertSelective" parameterType="com.hhly.award.persistence.po.OrderGroupContentPO">
+        insert into order_group_content
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="orderCode != null">
+                order_code,
+            </if>
+            <if test="userId != null">
+                user_id,
+            </if>
+            <if test="buyRatio != null">
+                buy_ratio,
+            </if>
+            <if test="buyAmount != null">
+                buy_amount,
+            </if>
+            <if test="buyTime != null">
+                buy_time,
+            </if>
+            <if test="preBonus != null">
+                pre_bonus,
+            </if>
+            <if test="aftBonus != null">
+                aft_bonus,
+            </if>
+            <if test="commissionAmount != null">
+                commission_amount,
+            </if>
+            <if test="sendBonus != null">
+                send_bonus,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+            <if test="remark != null">
+                remark,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="orderCode != null">
+                #{orderCode,jdbcType=VARCHAR},
+            </if>
+            <if test="userId != null">
+                #{userId,jdbcType=INTEGER},
+            </if>
+            <if test="buyRatio != null">
+                #{buyRatio,jdbcType=DECIMAL},
+            </if>
+            <if test="buyAmount != null">
+                #{buyAmount,jdbcType=DECIMAL},
+            </if>
+            <if test="buyTime != null">
+                #{buyTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="preBonus != null">
+                #{preBonus,jdbcType=DECIMAL},
+            </if>
+            <if test="aftBonus != null">
+                #{aftBonus,jdbcType=DECIMAL},
+            </if>
+            <if test="commissionAmount != null">
+                #{commissionAmount,jdbcType=DECIMAL},
+            </if>
+            <if test="sendBonus != null">
+                #{sendBonus,jdbcType=DECIMAL},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="remark != null">
+                #{remark,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.hhly.award.persistence.po.OrderGroupContentPO">
+        update order_group_content
+        <set>
+            <if test="orderCode != null">
+                order_code = #{orderCode,jdbcType=VARCHAR},
+            </if>
+            <if test="userId != null">
+                user_id = #{userId,jdbcType=INTEGER},
+            </if>
+            <if test="buyRatio != null">
+                buy_ratio = #{buyRatio,jdbcType=DECIMAL},
+            </if>
+            <if test="buyAmount != null">
+                buy_amount = #{buyAmount,jdbcType=DECIMAL},
+            </if>
+            <if test="buyTime != null">
+                buy_time = #{buyTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="preBonus != null">
+                pre_bonus = #{preBonus,jdbcType=DECIMAL},
+            </if>
+            <if test="aftBonus != null">
+                aft_bonus = #{aftBonus,jdbcType=DECIMAL},
+            </if>
+            <if test="commissionAmount != null">
+                commission_amount = #{commissionAmount,jdbcType=DECIMAL},
+            </if>
+            <if test="sendBonus != null">
+                send_bonus = #{sendBonus,jdbcType=DECIMAL},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="remark != null">
+                remark = #{remark,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <!-- 计算奖金派奖 -->
+    <update id="updatePer" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index" separator=";">
+            update order_group_content
+            set
+            buy_amount = #{item.buyAmount,jdbcType=DECIMAL},
+            pre_bonus = #{item.preBonus,jdbcType=DECIMAL},
+            aft_bonus = #{item.aftBonus,jdbcType=DECIMAL},
+            commission_amount = #{item.commissionAmount,jdbcType=DECIMAL},
+            send_bonus = #{item.sendBonus,jdbcType=DECIMAL},
+            update_time = now()
+            where id = #{item.id,jdbcType=INTEGER}
+        </foreach>
+    </update>
+
+
+    <!-- 计算奖金派奖 -->
+    <update id="updateAddBonus" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index" separator=";">
+            update order_group_content set
+            added_bonus=#{item.addedBonus,jdbcType=DECIMAL},
+            site_added_bonus=#{item.siteAddedBonus,jdbcType=DECIMAL},
+            red_code_get=#{item.redCode,jdbcType=VARCHAR},
+            update_time = now()
+            where id=#{item.id,jdbcType=INTEGER}
+        </foreach>
+    </update>
+
+    <!-- 查询改订单购买金额 -->
+    <select id="selectBuyAmount" resultType="double" parameterType="string">
+        select sum(buy_amount) from order_group_content where order_code=#{orderCode}
+    </select>
+</mapper>

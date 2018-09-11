@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hhly.award.persistence.dao.SportDrawFBDaoMapper" >
+  <resultMap id="BaseResultMap" type="com.hhly.award.bo.SportDrawFBBO" >
+    <id column="ID" property="id"  />
+    <result column="SPORT_AGAINST_INFO_ID" property="sportAgainstInfoId"/>
+    <result column="HALF_SCORE" property="halfScore" />
+    <result column="FULL_SCORE" property="fullScore"  />
+    <result column="FULL_SPF" property="fullSpf" />
+    <result column="LET_SPF" property="letSpf" />
+    <result column="LET_NUM" property="letNum" />
+    <result column="SCORE" property="score" />
+    <result column="GOAL_NUM" property="goalNum" />
+    <result column="HF_WDF" property="hfWdf" />
+    <result column="DRAW_TIME" property="drawTime" />
+    <result column="MODIFY_BY" property="modifyBy" />
+    <result column="MODIFY_TIME" property="modifyTime" />
+    <result column="UPDATE_TIME" property="updateTime" />
+    <result column="CREATE_TIME" property="createTime" />
+  </resultMap>
+
+  <sql id="Base_Column_List" >
+    ID, SPORT_AGAINST_INFO_ID, HALF_SCORE, FULL_SCORE, FULL_SPF, LET_SPF,
+    LET_NUM, SCORE, GOAL_NUM, HF_WDF, DRAW_TIME, MODIFY_BY, MODIFY_TIME, UPDATE_TIME, 
+    CREATE_TIME
+  </sql>
+
+<select id="findBySportAgainstInfoIdS" resultMap="BaseResultMap">
+	/*MASTER*/
+	SELECT
+	<include refid="Base_Column_List" />
+	FROM SPORT_DRAW_FB WHERE SPORT_AGAINST_INFO_ID IN
+	<foreach collection="sportAgainstInfoIdS" index="index"
+		item="sportAgainstInfoId" open="(" separator="," close=")">
+		#{sportAgainstInfoId}
+	</foreach>
+</select>
+<select id="findBySystemCode" resultMap="BaseResultMap">
+	/*MASTER*/
+  	SELECT 
+  	a.ID, a.SPORT_AGAINST_INFO_ID, a.HALF_SCORE, a.FULL_SCORE, a.FULL_SPF, a.LET_SPF,
+    a.LET_NUM, a.SCORE, a.GOAL_NUM, a.HF_WDF, a.DRAW_TIME, a.MODIFY_BY, a.MODIFY_TIME, a.UPDATE_TIME, 
+    a.CREATE_TIME
+  	FROM SPORT_DRAW_FB a INNER JOIN SPORT_AGAINST_INFO b ON a.SPORT_AGAINST_INFO_ID = b.ID WHERE b.SYSTEM_CODE = #{systemCode}
+  </select>
+</mapper>

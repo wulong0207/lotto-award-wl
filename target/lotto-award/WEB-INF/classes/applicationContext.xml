@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:aop="http://www.springframework.org/schema/aop"
+	   xmlns:tx="http://www.springframework.org/schema/tx"
+	   xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:task="http://www.springframework.org/schema/task"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans
+          http://www.springframework.org/schema/beans/spring-beans-4.1.xsd   
+          http://www.springframework.org/schema/context   
+          http://www.springframework.org/schema/context/spring-context-4.1.xsd   
+          http://www.springframework.org/schema/aop   
+          http://www.springframework.org/schema/aop/spring-aop-4.1.xsd   
+          http://www.springframework.org/schema/tx    
+          http://www.springframework.org/schema/tx/spring-tx-4.1.xsd
+          http://www.springframework.org/schema/task    
+    	  http://www.springframework.org/schema/task/spring-task-3.0.xsd
+    	  ">
+
+	<context:component-scan base-package="com.hhly.*" />
+	<!-- 定时任务 -->
+	<task:annotation-driven/> 
+	
+    <bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="ignoreResourceNotFound" value="true" />
+		<property name="locations">
+			<list>
+				<value>classpath:db.properties</value>
+				<value>classpath:sys_dynamic.properties</value>
+			</list>
+		</property>
+     </bean>
+
+	<!-- 引入配置文件 -->
+     <import resource="rabbitmq.xml"/>
+    
+	   <!-- 阿里 druid 数据库连接池 add by scott 2017-1-12 start -->  
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close">    
+       <!-- 数据库基本信息配置 -->  
+       <property name="url" value = "${url}" />    
+       <property name="username" value="${username}" />    
+       <property name="password" value="${password}" />    
+       <property name="driverClassName" value="${driverClassName}" /> 
+       <!-- 最大并发连接数 -->  
+       <property name="maxActive" value="${maxActive}" />  
+       <!-- 初始化连接数量 -->  
+       <property name="initialSize" value="${initialSize}" />  
+       <!-- 配置获取连接等待超时的时间 -->  
+       <property name="maxWait" value="${maxWait}" /> 
+       <!-- 最小空闲连接数 -->  
+       <property name="minIdle" value="${minIdle}" />    
+       <!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->  
+       <property name="timeBetweenEvictionRunsMillis" value="${timeBetweenEvictionRunsMillis}" />  
+       <!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->  
+       <property name="minEvictableIdleTimeMillis" value="${minEvictableIdleTimeMillis}" />    
+       <!-- 用来检测连接是否有效的sql -->
+       <property name="validationQuery" value="${validationQuery}" />
+       <!-- 是否缓存preparedStatement -->
+       <property name="poolPreparedStatements" value="${poolPreparedStatements}"></property>   
+       <!-- 建议配置为true，不影响性能，并且保证安全性 --> 
+       <property name="testWhileIdle" value="${testWhileIdle}" />
+       <!-- 申请连接时执行validationQuery检测连接是否有效，做了这个配置会降低性能  建议false -->   
+       <property name="testOnBorrow" value="${testOnBorrow}" /> 
+       <!-- 归还连接时执行validationQuery检测连接是否有效，做了这个配置会降低性能  建议为false -->   
+       <property name="testOnReturn" value="${testOnReturn}" />  
+       <!-- 在Druid中，不会存在Oracle下PSCache占用内存过多的问题， 可以把这个数值配置大一些 -->  
+       <property name="maxOpenPreparedStatements" value="${maxOpenPreparedStatements}" />  
+       <!-- 对于长时间不使用的连接强制关闭 -->  
+       <property name="removeAbandoned" value="${removeAbandoned}" />  
+       <!-- 超过30分钟开始关闭空闲连接  -->  
+       <property name="removeAbandonedTimeout" value="${removeAbandonedTimeout}" />  
+       <!-- 关闭 abanded 连接时输出错误日志 -->     
+       <property name="logAbandoned" value="${logAbandoned}" />
+       <!-- sql监控 -->
+       <property name="filters" value="stat" />
+    </bean> 
+    <!-- 阿里 druid 数据库连接池 add by scott 2017-1-12 end --> 
+
+
+	<!-- define the SqlSessionFactory -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg index="0" ref="sqlSessionFactory" />
+	</bean>
+
+	<!-- scan for mappers and let them be autowired -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.hhly.award.persistence.dao" />
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+	</bean>
+
+	<tx:annotation-driven transaction-manager="transactionManager" />
+
+	<!-- 事务管理器 start-->
+	<bean id="transactionManager"
+		  class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	<!-- 事务管理器  end -->
+
+	<!-- 通知 -->
+	<tx:advice id="transactionAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="add*" propagation="REQUIRED" />
+			<tx:method name="del*" propagation="REQUIRED" />
+			<tx:method name="upd*" propagation="REQUIRED" />
+			<tx:method name="do*" propagation="REQUIRED" />
+			<tx:method name="save*" propagation="REQUIRED" />
+			<tx:method name="*" propagation="SUPPORTS" read-only="true" />
+		</tx:attributes>
+	</tx:advice>
+	
+	<aop:config>
+		<aop:pointcut id="myCut"
+			expression="execution(* com.hhly..*.service.impl.*.*(..))" />
+		<aop:advisor advice-ref="transactionAdvice" pointcut-ref="myCut" />
+	</aop:config>
+</beans>

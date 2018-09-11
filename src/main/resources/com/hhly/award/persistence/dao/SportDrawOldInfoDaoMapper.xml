@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hhly.award.persistence.dao.SportDrawOldInfoDaoMapper" >
+
+
+  <resultMap id="BaseResultMap" type="com.hhly.award.bo.SportDrawOldInfoBO">
+  	<id column="id" property="id"/>
+    <result column="SPORT_AGAINST_INFO_ID" property="sportAgainstInfoId" />
+    <result column="HALF_SCORE" property="halfScore" />
+	<result column="HALF_SCORE" property="halfScore" />
+	<result column="FULL_SCORE" property="fullScore" />
+	<result column="FOUR_GOAL" property="fourGoal" />
+	<result column="SIX_HF_WDF" property="sixHfWdf" />
+	<result column="FOURTEEN_WDF" property="fourteenWdf" />
+	<result column="DRAW_TIME" property="drawTime" />
+	<result column="MODIFY_BY" property="modifyBy" />
+	<result column="MODIFY_TIME" property="modifyTime" />
+	<result column="UPDATE_TIME" property="updateTime" />
+	<result column="CREATE_TIME" property="createTime" />
+      
+      
+  </resultMap>
+
+    <sql id="Base_Column_List" >
+        ID, SPORT_AGAINST_INFO_ID, HALF_SCORE, FULL_SCORE, FOUR_GOAL,
+        SIX_HF_WDF, FOURTEEN_WDF, DRAW_TIME, MODIFY_BY, MODIFY_TIME, UPDATE_TIME, CREATE_TIME
+    </sql>
+
+	<select id="findBySportAgainstInfoIdS" resultMap="BaseResultMap">
+		/*MASTER*/
+		SELECT 
+		<include refid="Base_Column_List"/>
+		FROM SPORT_DRAW_OLD_INFO WHERE SPORT_AGAINST_INFO_ID IN 
+		<foreach collection="sportAgainstInfoIdS" index="index" item="sportAgainstInfoId"
+			open="(" separator="," close=")">
+			#{sportAgainstInfoId}
+		</foreach> 
+	</select>
+</mapper>

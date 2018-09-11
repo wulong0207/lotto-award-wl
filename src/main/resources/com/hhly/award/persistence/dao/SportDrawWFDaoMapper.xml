@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hhly.award.persistence.dao.SportDrawWFDaoMapper" >
+  <resultMap id="BaseResultMap" type="com.hhly.award.bo.SportDrawWFBO" >
+    <id column="ID" property="id" jdbcType="DECIMAL" />
+    <result column="SPORT_AGAINST_INFO_ID" property="sportAgainstInfoId" jdbcType="DECIMAL" />
+    <result column="FULL_SCORE" property="fullScore" jdbcType="VARCHAR" />
+    <result column="LET_NUM" property="letNum" jdbcType="DECIMAL" />
+    <result column="LET_SF" property="letSf" jdbcType="DECIMAL" />
+    <result column="SP_LET_WF" property="spLetWf" jdbcType="FLOAT" />
+    <result column="DRAW_TIME" property="drawTime" jdbcType="TIMESTAMP" />
+    <result column="MODIFY_BY" property="modifyBy" jdbcType="VARCHAR" />
+    <result column="MODIFY_TIME" property="modifyTime" jdbcType="TIMESTAMP" />
+    <result column="UPDATE_TIME" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+
+  <sql id="Base_Column_List" >
+    ID, SPORT_AGAINST_INFO_ID, FULL_SCORE, LET_NUM, LET_SF, SP_LET_WF,
+    DRAW_TIME, MODIFY_BY, MODIFY_TIME, UPDATE_TIME, CREATE_TIME
+  </sql>
+
+
+	<select id="findBySportAgainstInfoIdS" resultMap="BaseResultMap">
+		/*MASTER*/
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM SPORT_DRAW_WF WHERE SPORT_AGAINST_INFO_ID IN
+		<foreach collection="sportAgainstInfoIdS" index="index"
+			item="sportAgainstInfoId" open="(" separator="," close=")">
+			#{sportAgainstInfoId}
+		</foreach>
+	</select>
+	<select id="findBySystemCode" resultMap="BaseResultMap">
+		/*MASTER*/
+		SELECT
+		a.ID, a.SPORT_AGAINST_INFO_ID, a.FULL_SCORE, a.LET_NUM,
+		a.LET_SF,
+		a.SP_LET_WF, a.DRAW_TIME, a.MODIFY_BY, a.MODIFY_TIME, a.UPDATE_TIME, a.CREATE_TIME
+		FROM SPORT_DRAW_WF a INNER JOIN SPORT_AGAINST_INFO b ON
+		a.SPORT_AGAINST_INFO_ID = b.ID WHERE b.SYSTEM_CODE = #{systemCode}
+	</select>
+
+</mapper>

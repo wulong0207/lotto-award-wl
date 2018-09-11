@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<beans xmlns="http://www.springframework.org/schema/beans"  
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:rabbit="http://www.springframework.org/schema/rabbit"  
+       xsi:schemaLocation="http://www.springframework.org/schema/beans  
+     http://www.springframework.org/schema/beans/spring-beans-4.1.xsd  
+     http://www.springframework.org/schema/beans  
+     http://www.springframework.org/schema/beans/spring-beans-4.1.xsd  
+     http://www.springframework.org/schema/rabbit  
+     http://www.springframework.org/schema/rabbit/spring-rabbit-1.4.xsd
+     "> 
+     
+     <!-- 线程池配置 -->
+     <bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">            
+        <!-- 核心线程数，默认为1 -->            
+        <property name="corePoolSize" value="10" />            
+        <!-- 最大线程数，默认为Integer.MAX_VALUE -->            
+        <property name="maxPoolSize" value="20" />            
+        <!-- 队列最大长度，一般需要设置值>=notifyScheduledMainExecutor.maxNum；默认为Integer.MAX_VALUE -->            
+        <property name="queueCapacity" value="100" />            
+        <!-- 线程池维护线程所允许的空闲时间，默认为60s -->            
+        <property name="keepAliveSeconds" value="300" />            
+        <!-- 线程池对拒绝任务（无线程可用）的处理策略，目前只支持AbortPolicy、CallerRunsPolicy；默认为后者 -->            
+        <property name="rejectedExecutionHandler">            
+            <bean class="java.util.concurrent.ThreadPoolExecutor$CallerRunsPolicy" />            
+        </property>            
+    </bean>
+     
+    <!-- 创建connectionFactory -->  
+    <rabbit:connection-factory id="connectionFactory" host="${rabbitmq_host}" username="${rabbitmq_username}"  
+        password="${rabbitmq_password}" port="${rabbitmq_port}" virtual-host="${rabbitmq_virtual_host}"/> 
+     
+     <!-- 通过指定下面的admin信息，当前productor中的exchange和queue会在rabbitmq服务器上自动生成 -->
+     <rabbit:admin connection-factory="connectionFactory"/>
+     
+     <!-- 定义rabbit template 用于数据的接收和发送 -->
+     <rabbit:template id="rabbitTemplate" connection-factory="connectionFactory" />
+
+     <!-- 列队 --> 
+    <!-- <rabbit:queue name="" durable="false" auto-delete="false" exclusive="false">
+    	<rabbit:queue-arguments>  
+	        <entry key="x-max-priority">  
+	            <value type="java.lang.Integer">10</value>
+	        </entry>  
+	      </rabbit:queue-arguments>  
+    </rabbit:queue>
+    
+    <rabbit:listener-container connection-factory="connectionFactory" acknowledge="auto" task-executor="taskExecutor">
+	</rabbit:listener-container> -->
+</beans>     
+     
+     
+     
